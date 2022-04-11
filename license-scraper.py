@@ -17,12 +17,13 @@ driver_path = './chromedriver'
 url = 'https://www.armedicalboard.org/public/directory/lookup.aspx'
 download_path = './inputs/medical_licenses'
 
-# Clean download path 
+# Clean paths
 clean_folder(download_path)
+clean_folder(os.path.split(output_path)[0])
 
 # Add header for the first row of data
 headers = [['Name', 'City', 'License number', 'Original issue date', 'Board minutes?', 'Board orders?', 'Board minutes and orders?', 'Board minutes links']]
-with open(file_path, 'w') as f:
+with open(output_path, 'w') as f:
     writer = csv.writer(f)
     writer.writerows(headers)
     f.close()
@@ -114,10 +115,10 @@ while next_page:
             else: 
                 pdf_filename = pdf_filename + '(' + str(download_counter), ').pdf'
             
-            file_path = os.path.join(download_path, pdf_filename)
+            output_path = os.path.join(download_path, pdf_filename)
 
             # delay to ensure pdf downloads 
-            while not os.path.exists(file_path):
+            while not os.path.exists(output_path):
                 sleep(.1)
 
         # Close tab and switch to main tab 
@@ -125,7 +126,7 @@ while next_page:
         driver.switch_to.window(driver.window_handles[0])
 
         # Write to file  
-        with open(file_path, 'a') as f:
+        with open(output_path, 'a') as f:
             writer = csv.writer(f)
             writer.writerows([license_info])
             f.close()
