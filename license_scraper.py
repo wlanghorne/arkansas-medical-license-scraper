@@ -1,4 +1,4 @@
-from medical_license_function import select_licenses_by_county, cat_outputs
+from scraper_functions import select_licenses_by_county, cat_outputs
 import sys
 
 # Handle command line args

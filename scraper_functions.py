@@ -64,17 +64,18 @@ def select_licenses_by_county(county):
 
 	headers = [['Name', 'City', 'License number', 'Original issue date', 'Board minutes', 'Board orders', 'Board minutes w/ complaints']]
 
+	# Clean folders
+	clean_folder(outputs_path)
+	clean_folder(final_path)
+
 	with open(file_path, 'w') as f:
 		writer = csv.writer(f)
 		writer.writerows(headers)
 		f.close()
 
-	# Clean folders
-	clean_folder(final_path)
-
 	# Initiate driver 
 	firefox_options = Options()
-	#firefox_options.add_argument("--headless")
+	firefox_options.add_argument("--headless")
 	s = Service(driver_path)
 	driver = webdriver.Firefox(service=s, options=firefox_options)
 	driver.get(url)
