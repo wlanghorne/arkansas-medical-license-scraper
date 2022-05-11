@@ -1,4 +1,4 @@
-from scraper_functions import select_licenses_by_county, cat_outputs
+from scraper_functions import prep_folders, select_licenses_by_county, cat_outputs
 import sys
 
 # Handle command line args
@@ -85,10 +85,12 @@ argv = sys.argv
 argv_len = len(argv)
 
 if argv_len == 2:
-    start_county = argv[1]
+    start_county = counties.index(argv[1])
 elif argv_len == 3:
-    start_county = argv[1]
-    end_county = argv[2]
+    start_county = counties.index(argv[1])
+    end_county = counties.index(argv[2])
+
+prep_folders()
 
 for i in range (start_county, end_county):
     print('Script will check licenses from ' + counties[i] + ' County to ' + counties[end_county] + ' County')

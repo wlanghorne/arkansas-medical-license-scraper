@@ -5,8 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.firefox.options import Options 
-from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from time import sleep
 import sys
 import os
@@ -16,8 +16,8 @@ import urllib.request
 import PyPDF2
 
 # Path to csv file that will store data 
-driver_path = './geckodriver'
-download_path = './outputs/board_minutes.pdf'
+driver_path = './chromedriver'
+download_path = './outputs/Master_DetailedVerif.pdf'
 outputs_path = './outputs'
 final_path = './outputs/final'
 final_file_path = final_path +'/medical_licenses.csv'
@@ -28,21 +28,23 @@ def clean_folder(path):
 		shutil.rmtree(path)
 	os.makedirs(path)
 
-def download_pdf(url, file_path):
-	response = urllib.request.urlopen(url)    
-	file = open(file_path, 'wb')
-	file.write(response.read())
-	file.close()
+def prep_folders():
+	# Clean folders
+	clean_folder(outputs_path)
+	clean_folder(final_path)
 
-def read_pdf_for_complaint(file_path):
+def read_pdf(file_path):
 	pdf = open(file_path, 'rb')
 	reader = PyPDF2.PdfFileReader(pdf)
 	text = ''
 	for i in range (reader.numPages):
 		page_reader = reader.getPage(i)
 		text = text + page_reader.extractText()
-	if 'Complaint' in text:
-		return text
+	os.remove(download_path)
+	text_list = text.split()
+	no_white_text = "".join(text_list)
+	if '17-95-409(a)(2)(e)' in no_white_text:
+		return text 
 	else:
 		return False
 
@@ -50,23 +52,15 @@ def check_board_minutes(driver, download_path):
 	board_minute_link = driver.find_element(By.ID, 'ctl00_MainContentPlaceHolder_lkbtnBoardMinutes')
 	driver.execute_script(board_minute_link.get_attribute('href'))
 
-	WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CLASS_NAME, 'endOfContent')))
-
-	download_pdf(driver.current_url, download_path)
-
 	while not os.path.exists(download_path):
 		sleep(.1)
 
-	return read_pdf_for_complaint(download_path)
+	return read_pdf(download_path)
 
 def select_licenses_by_county(county):
 	file_path = './outputs/' + county + '_medical_licenses.csv'
 
-	headers = [['Name', 'City', 'License number', 'Original issue date', 'Board minutes', 'Board orders', 'Board minutes w/ complaints']]
-
-	# Clean folders
-	clean_folder(outputs_path)
-	clean_folder(final_path)
+	headers = [['Name', 'City', 'License number', 'Original issue date', 'Board minutes', 'Board orders', 'Violation']]
 
 	with open(file_path, 'w') as f:
 		writer = csv.writer(f)
@@ -74,10 +68,12 @@ def select_licenses_by_county(county):
 		f.close()
 
 	# Initiate driver 
-	firefox_options = Options()
-	firefox_options.add_argument("--headless")
+	chrome_options = Options()
+	chrome_options.add_argument("--headless")
+	prefs = {'download.default_directory' : os.getcwd() + '/outputs'}
+	chrome_options.add_experimental_option('prefs', prefs)
 	s = Service(driver_path)
-	driver = webdriver.Firefox(service=s, options=firefox_options)
+	driver = webdriver.Chrome(service=s, options=chrome_options)
 	driver.get(url)
 
 	# Submit search
