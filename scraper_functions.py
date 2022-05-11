@@ -24,9 +24,8 @@ final_file_path = final_path +'/medical_licenses.csv'
 url = 'https://www.armedicalboard.org/public/directory/lookup.aspx'
 
 def clean_folder(path):
-	if os.path.exists(path):
-		shutil.rmtree(path)
-	os.makedirs(path)
+	if not os.path.exists(path):
+		os.makedirs(path)
 
 def prep_folders():
 	# Clean folders
@@ -43,7 +42,8 @@ def read_pdf(file_path):
 	os.remove(download_path)
 	text_list = text.split()
 	no_white_text = "".join(text_list)
-	if '17-95-409(a)(2)(e)' in no_white_text:
+	text = " ".join(text_list)
+	if '17-95-409(a)(2)(e)' in no_white_text or 'prescribinganexcessiveamountofcontrolledsubstancestopatients' in no_white_text:
 		return text 
 	else:
 		return False
@@ -53,7 +53,7 @@ def check_board_minutes(driver, download_path):
 	driver.execute_script(board_minute_link.get_attribute('href'))
 
 	while not os.path.exists(download_path):
-		sleep(.1)
+		sleep(1)
 
 	return read_pdf(download_path)
 
@@ -163,7 +163,7 @@ def select_licenses_by_county(county):
 			license_counter += 1 
 
 			# Slight delay 
-			sleep(.1)
+			sleep(.4)
 
 		# Go to next page and update counter 
 		if next_page:
@@ -172,7 +172,7 @@ def select_licenses_by_county(county):
 			# wait for link to go stale indicating program reached next page 
 			WebDriverWait(driver, 20).until(EC.staleness_of(elems[0]))
 
-		sleep(.1)
+		sleep(.2)
 		print(license_counter)
 
 	# Script ran successfully  
@@ -185,7 +185,6 @@ def find_csv_files(path_to_dir, file_type=".csv"):
 
 
 def cat_outputs ():
-	clean_folder(final_path)
 	# Get all csvs in the output folder
 	csv_paths = find_csv_files(outputs_path)
 

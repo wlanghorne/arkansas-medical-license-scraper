@@ -63,7 +63,7 @@ counties = ['Arkansas',
             'Prairie',
             'Pulaski',
             'Randolph',
-            'Saint Francis',
+            'St. Francis',
             'Saline',
             'Scott',
             'Searcy',
@@ -87,12 +87,33 @@ argv_len = len(argv)
 if argv_len == 2:
     start_county = counties.index(argv[1])
 elif argv_len == 3:
-    start_county = counties.index(argv[1])
-    end_county = counties.index(argv[2])
+    possible_start_county = argv[1] + ' ' + argv[2]
+    if possible_start_county in counties:
+        start_county = counties.index(possible_start_county)
+    else:
+        start_county = counties.index(argv[1])
+        end_county = counties.index(argv[2])
+elif argv_len == 4:
+    possible_start_county = argv[1] + ' ' + argv[2]
+    if possible_start_county in counties:
+        start_county = counties.index(possible_start_county)
+        end_county = counties.index(argv[3])
+    possible_end_county = argv[2] + ' ' + argv[3]
+    if possible_end_county in counties:
+        start_county = counties.index(argv[1])
+        end_county = counties.index(possible_end_county)
+elif argv_len == 5:
+    possible_start_county = argv[1] + ' ' + argv[2]
+    possible_end_county = argv[3] + ' ' + argv[4]
+    if possible_start_county in counties and possible_end_county in counties :
+        start_county = counties.index(possible_start_county)
+        end_county = counties.index(possible_end_county)
+
+
 
 prep_folders()
 
-for i in range (start_county, end_county):
+for i in range (start_county, end_county +1):
     print('Script will check licenses from ' + counties[i] + ' County to ' + counties[end_county] + ' County')
     select_licenses_by_county(counties[i])
 
