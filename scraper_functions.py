@@ -41,12 +41,8 @@ def read_pdf(file_path):
 		text = text + page_reader.extractText()
 	os.remove(download_path)
 	text_list = text.split()
-	no_white_text = "".join(text_list)
 	text = " ".join(text_list)
-	if '17-95-409(a)(2)(e)' in no_white_text or 'prescribinganexcessiveamountofcontrolledsubstancestopatients' in no_white_text:
-		return text 
-	else:
-		return False
+	return text 
 
 def check_board_minutes(driver, download_path):
 	board_minute_link = driver.find_element(By.ID, 'ctl00_MainContentPlaceHolder_lkbtnBoardMinutes')
@@ -145,7 +141,7 @@ def select_licenses_by_county(county):
 							is_board_orders]
 
 			# View board minutes and append url
-			if is_board_minutes:
+			if is_board_minutes and is_board_orders:
 				license_info.append(check_board_minutes(driver, download_path))
 			else: 
 				license_info.append(False)
